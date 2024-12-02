@@ -1,4 +1,4 @@
-﻿using CarDealerAPI.Controllers;
+using CarDealerAPI.Controllers;
 using CarDealerAPI.Model;
 using CarDealerAPI.Repository;
 using Microsoft.AspNetCore.Authorization;
@@ -42,6 +42,11 @@ namespace CarCarAPI.Controllers
         [Route("searchbymakemodel")]
         public async Task<IActionResult> GetByMakeAndModel(string make,string model)
         {
+            if (String.IsNullOrEmpty(make) || String.IsNullOrEmpty(model))
+            {
+                // Return validation errors if the model is invalid
+                return BadRequest("Make and Model cannot be empty ! ");
+            }
             // Retrieve the Authorization header
             var authHeader = Request.Headers["Authorization"].FirstOrDefault();
             string parseDealerID = JwtTokenHelper.ReturnDealerID(authHeader);
@@ -74,6 +79,11 @@ namespace CarCarAPI.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(CreateCarDataModel item)
         {
+            if (!ModelState.IsValid)
+            {
+                // Return validation errors if the model is invalid
+                return BadRequest(ModelState);
+            }
             var authHeader = Request.Headers["Authorization"].FirstOrDefault();
             string parseDealerID = JwtTokenHelper.ReturnDealerID(authHeader);
             int DealerID = 0;
@@ -103,7 +113,7 @@ namespace CarCarAPI.Controllers
 
         }
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, int stock)
+        public async Task<IActionResult> Update(int id,[FromBody] int stock)
         {
             var authHeader = Request.Headers["Authorization"].FirstOrDefault();
             string parseDealerID = JwtTokenHelper.ReturnDealerID(authHeader);
